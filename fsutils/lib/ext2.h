@@ -5,9 +5,11 @@
 #include <stdint.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define EXT2_SUPERBLOCK_OFFSET 1024
 #define EXT2_MAGIC 0xEF53
+#define EXT2_ROOT_INO 2
 
 #pragma pack(push, 1)
 struct ext2_superblock {
@@ -127,6 +129,7 @@ struct ext2_data_block {
 
 int is_ext2(FILE *fp);
 void print_ext2(FILE *fp);
+void print_tree_ext2(FILE *fp);
 
 #endif
 

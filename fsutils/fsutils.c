@@ -5,6 +5,11 @@
 
 int main(int argc, char *argv[])
 {
+    if (argc < 2)
+    {
+        fprintf(stderr, "Usage: ./fsutils --info|--tree|--cat <filesystem_image>\n");
+        return 1;
+    }
 
     if (strcmp(argv[1], "--info") == 0)
     {
@@ -57,7 +62,7 @@ int main(int argc, char *argv[])
 
         if (is_ext2(fp))
         {
-            //Show tree ext
+            print_tree_ext2(fp);
         }
         else if (is_fat16(fp))
         {
