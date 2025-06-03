@@ -65,17 +65,15 @@ int is_visited(uint32_t inode, uint32_t *visited, int count)
     return 0;
 }
 
-void traverse_directory(FILE *fp, struct ext2_superblock sb, struct ext2_group_desc gd, struct ext2_inode inode, int depth)
+void traverse_directory(FILE *fp, struct ext2_superblock sb, struct ext2_group_desc gd, struct ext2_inode inode, uint32_t inode_num, int depth)
 {
     static uint32_t visited[4096];
     static int visited_count = 0;
 
-    uint32_t this_inode_num = inode.i_block[0]; // OJO: esto no es correcto, necesitas pasar el número de inodo real
-    // Mejor: añade un parámetro uint32_t inode_num a la función y pásalo siempre
-
-    if (is_visited(this_inode_num, visited, visited_count))
+    // Usa el número de inodo real
+    if (is_visited(inode_num, visited, visited_count))
         return;
-    visited[visited_count++] = this_inode_num;
+    visited[visited_count++] = inode_num;
 
     uint32_t block_size = 1024 << sb.s_log_block_size;
     char name[256];
@@ -114,7 +112,8 @@ void traverse_directory(FILE *fp, struct ext2_superblock sb, struct ext2_group_d
                 struct ext2_inode child = read_inode(fp, sb, gd, entry_inode);
                 if ((child.i_mode & 0xF000) == 0x4000)
                 {
-                    traverse_directory(fp, sb, gd, child, depth + 1 /*, entry_inode */);
+                    // Pasa el número de inodo real en la llamada recursiva
+                    traverse_directory(fp, sb, gd, child, entry_inode, depth + 1);
                 }
             }
 
@@ -137,5 +136,5 @@ void print_tree_ext2(FILE *fp)
     struct ext2_inode root_inode = read_inode(fp, sb, gd, EXT2_ROOT_INO);
 
     printf(".\n");
-    traverse_directory(fp, sb, gd, root_inode, 0);
+    traverse_directory(fp, sb, gd, root_inode, EXT2_ROOT_INO, 0);
 }
